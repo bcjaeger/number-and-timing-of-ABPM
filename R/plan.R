@@ -104,9 +104,10 @@ the_plan <- drake_plan(
   # fig_errs = make_figerrs(study_analyzed, winning_samplers),
    
   report_tables = make_report_tables(
+    tbl_characteristics = tbl_characteristics,
+    tbl_accuracy = tbl_accuracy,
     tbl_exclusions = exclusions$table,
-    tbl_variations = tbl_variations,
-    tbl_characteristics = tbl_characteristics
+    tbl_variations = tbl_variations
   )
   
   

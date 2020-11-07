@@ -53,11 +53,11 @@ exclude_participants <- function(abpm_long, threshold) {
     mutate(
       exclusion_abbreviated = recode(
         exclusion,
-        '0' = '.0_all',
-        '1' = '.1_did_abpm',
-        '2' = '.2_complete_abpm',
-        '3' = '.3_asleep_1to5',
-        '4' = '.4_all_bps'
+        '0' = 'exc_0_all',
+        '1' = 'exc_1_did_abpm',
+        '2' = 'exc_2_complete_abpm',
+        '3' = 'exc_3_asleep_1to5',
+        '4' = 'exc_4_all_bps'
       ),
       exclusion = recode(
         exclusion,

@@ -47,7 +47,7 @@ make_tblone <- function(data) {
     paste("Missing counts (%):", paste(missings$tbv, collapse = '; '))
   )
   
-  data %>% 
+  tbl_characteristics <- data %>% 
     mutate(
       # b/c tibble_one() is picky about this
       nht_full = recode(nht_full, 'yes' = 'Yes', 'no' = 'No'),
@@ -99,7 +99,9 @@ make_tblone <- function(data) {
       cln_sbp =	'Clinic systolic',
       cln_dbp =	'Clinic diastolic',
       study	= 'Study'
-    ) %>%
-    tibble_one(formula = ~ . | study)
+    ) 
+  
+  list(table = tbl_characteristics,
+       missing_footer = missing_footer)
 
 }
