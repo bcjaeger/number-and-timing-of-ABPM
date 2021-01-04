@@ -9,8 +9,12 @@
 make_report_tables <- function(
   tbl_characteristics,
   tbl_accuracy,
+  tbl_kappa_comparisons_wrt_234,
   tbl_exclusions,
-  tbl_variations
+  tbl_variations,
+  tbl_prs,
+  tbl_cstats,
+  control_vars
 ) {
   
   # Setup -------------------------------------------------------------------
@@ -23,6 +27,7 @@ make_report_tables <- function(
   abbrevs <- c(
     CARDIA = 'Coronary Artery Risk Development in Young Adults',
     CI = 'confidence interval',
+    C = 'concordance',
     BSA = "body surface area",
     BP = 'blood pressure',
     GED = 'General Educational Development',
@@ -65,7 +70,7 @@ make_report_tables <- function(
   footnote_winners <- as_paragraph(
     'Blood pressure sampling variations were compared to other ',
     'variations that measure blood pressure the same number of times ',
-    '(i.e., 2, 3, or 4) using the same strategy (i.e., Consecutive ', 
+    '(i.e., 2, 3, or 4) using the same strategy (i.e., consecutive ', 
     'or distributed) and the same time reference (i.e., midnight or ',
     'onset of sleep). Each of these 12 comparison groups had one ',
     'variation with the highest overall Kappa statistic, ',
@@ -91,7 +96,8 @@ make_report_tables <- function(
   
   footnote_nht_defn <- as_paragraph(
     "Nocturnal hypertension was defined as asleep",
-    "systolic/diastolic blood pressure \u2265120/70 mm Hg."
+    " systolic blood pressure \u2265120 mm Hg",
+    " or asleep diastolic blood pressure \u226570 mm Hg."
   ) 
   
   .tsm <- 'Time since midnight, hours'
@@ -152,28 +158,72 @@ make_report_tables <- function(
   # Summary of BP samplers --------------------------------------------------
   
   tbl_variations_flex <- tbl_variations %>% 
+    mutate(
+      variants = str_replace(
+        variants, 
+        pattern = fixed(
+          'starting at 1; starting at 2; starting at 3; and starting at 4'
+        ),
+        replacement = 'starting at 1, 2, 3, or 4 hours after falling asleep'
+      ),
+      variants = str_replace(
+        variants, 
+        pattern = fixed(
+          'starting at 1am; starting at 2am; starting at 3am; and starting at 4am'
+        ),
+        replacement = 'starting at 1am, 2am, 3am, or 4am'
+      ),
+      variants = str_replace(
+        variants, 
+        pattern = '4 and 5$',
+        replacement = '4 and 5 hours after sleep'
+      )
+    ) %>% 
     flextable(theme_fun = theme_box) %>% 
     set_header_labels(
-      description = 'Group description',
-      variants = "BP sampling variations"
+      description = 'Description of 12 categories',
+      variants = "74 BP sampling variations"
     ) %>% 
     width(j = 1, width = 2.5) %>% 
     width(j = 2, width = 4.5) %>% 
     align(align = 'center', part = 'header') %>% 
-    align(align = 'left', part = 'body')
+    align(align = 'left', part = 'body') %>% 
+    footnote(
+      i = 1, 
+      j = 1, 
+      part = 'header',
+      ref_symbols = fts[1],
+      value = as_paragraph(
+        'categories of blood pressure sampling variations are defined by',
+        ' the number of measurements taken (2, 3, or 4), whether the',
+        ' measurements are consecutive or distributed, and whether ',
+        ' measurements are timed relative to midnight or the onset of sleep.'
+      )
+    ) %>% 
+    footnote(
+      i = 1, 
+      j = 2, 
+      part = 'header',
+      ref_symbols = fts[2],
+      value = as_paragraph(
+        'blood pressure sampling variations are grouped by category'
+      )
+    )
   
   tbls_supp %<>% add_row(
-    object = list(tbl_exclusions_flex), 
+    object = list(tbl_variations_flex), 
     caption = glue("Summary of 12 groups of blood pressure sampling variations.")
   ) 
   
   # Characteristics ---------------------------------------------------------
   
   tbl_one <- tibble_one(tbl_characteristics$table, 
-                        formula = ~ . | study)
+                        formula = ~ . | study, 
+                        include_pval = TRUE)
   
-  tbl_characteristics_flex <- to_word(tbl_one) %>%
-    width(width = 4 / 3) %>%
+  tbl_characteristics_flex <- tbl_one %>% 
+    to_word() %>%
+    width(width = 1.2) %>%
     width(j = 1, width = 3) %>%
     footnote(
       i = 1,
@@ -191,8 +241,9 @@ make_report_tables <- function(
     )
   
   tbl_characteristics_inline <- tbl_one %>% 
+    rename(p_value = `P-value`) %>% 
     as_inline(tbl_variables = 'variable', 
-              tbl_values = c('Overall', 'CARDIA', "JHS")) 
+              tbl_values = c('Overall', 'CARDIA', "JHS", "p_value")) 
   
   tbls_main %<>% add_row(
     object = list(tbl_characteristics_flex), 
@@ -201,23 +252,30 @@ make_report_tables <- function(
   
   # BP sampler accuracy -----------------------------------------------------
   
-  tbl_accuracy_inline <- tbl_accuracy$winners %>% 
-    mutate(
-      descr = str_replace_all(descr, ' |, ', '_'),
-      n_msr = str_replace_all(n_msr, ' ', '_'),
-      n_msr = str_remove(n_msr, '_BP_measurements'),
-      n_msr = paste0('bp_', n_msr),
-      across(.cols = starts_with('tbv'), 
-             .fns = str_replace, 
-             pattern = '\n', 
-             replacement = ' ')
-    ) %>% 
-    as_inline(tbl_variables = c('n_msr', 'descr'),
-              tbl_values = c("tbv_kap_Overall", "tbv_kap_CARDIA", 
-                             "tbv_kap_JHS", "tbv_sbp_Overall", 
-                             "tbv_sbp_CARDIA", "tbv_sbp_JHS", 
-                             "tbv_dbp_Overall", "tbv_dbp_CARDIA", 
-                             "tbv_dbp_JHS"))
+  tbl_accuracy_inline <- tbl_accuracy %>%
+    map(
+      ~ .x %>% 
+        mutate(
+          descr = str_replace_all(descr, ' |, ', '_'),
+          n_msr = str_replace_all(n_msr, ' ', '_'),
+          n_msr = str_remove(n_msr, '_BP_measurements'),
+          n_msr = paste0('bp_', n_msr),
+          across(.cols = starts_with('tbv'), 
+                 .fns = str_replace, 
+                 pattern = '\n', 
+                 replacement = ' ')
+        ) %>% 
+        as_inline(tbl_variables = c('n_msr', 'descr'),
+                  tbl_values = c("tbv_kap_Overall", "tbv_kap_CARDIA", 
+                                 "tbv_kap_JHS", "tbv_sbp_Overall", 
+                                 "tbv_sbp_CARDIA", "tbv_sbp_JHS", 
+                                 "tbv_dbp_Overall", "tbv_dbp_CARDIA", 
+                                 "tbv_dbp_JHS"))
+    )
+  
+  tbl_accuracy_inline_winners <- tbl_accuracy_inline$winners 
+  tbl_accuracy_inline_everyone <- tbl_accuracy_inline$everyone 
+    
   
   tbl_accuracy_flex <- tbl_accuracy %>% 
     map(
@@ -259,7 +317,7 @@ make_report_tables <- function(
           j = 1,
           ref_symbols = '',
           value = as_paragraph(
-            write_abbrevs(abbrevs[c('CARDIA', 'BP', 'JHS')])
+            write_abbrevs(abbrevs[c('CARDIA', 'BP', 'CI', 'JHS')])
           )
         )
     )
@@ -280,13 +338,401 @@ make_report_tables <- function(
   
   tbls_main %<>% add_row(
     object = list(tbl_accuracy_flex$winners), 
-    caption = "summary of 12 blood pressure sampling variations that obtained the highest overall chance-corrected agreement (i.e., Kappa statistic) with ambulatory blood pressure monitoring throughout sleep."
+    caption = "Kappa statistics and mean absolute error for the blood pressure sampling variation within each category that obtained the highest overall chance-corrected agreement (i.e., Kappa statistic) with ambulatory blood pressure monitoring throughout sleep."
   ) 
   
   tbls_supp %<>% add_row(
     object = list(tbl_accuracy_flex$everyone), 
-    caption = "Summary of all 74 blood pressure sampling variations that were evaluated in the current study."
+    caption = "Kappa statistics and mean absolute error for all 74 evaluated blood pressure sampling variations."
   ) 
+  
+
+
+  # BP sampler kappa comparisons --------------------------------------------
+  
+  
+  inline_kappa_comparisons_wrt_234 <- 
+    tbl_kappa_comparisons_wrt_234 %>% 
+    mutate(
+      n_msr = str_remove(n_msr, 'BP '),
+      n_msr = str_remove(n_msr, 'measurements at '),
+      n_msr = str_remove_all(n_msr, ','),
+      n_msr = paste("BP", n_msr),
+      n_msr = str_replace_all(n_msr, ' ', '_')
+    ) %>% 
+    mutate(across(c(Overall, CARDIA, JHS), str_replace, '\n', ' ')) %>% 
+    as_inline(tbl_variables = c('n_msr', 'strat_by'),
+              tbl_values = c('Overall', 'CARDIA', 'JHS'))
+  
+  tbl_kappa_comparisons_wrt_234_flex <- 
+    tbl_kappa_comparisons_wrt_234 %>%
+    arrange(strat_by) %>%
+    mutate(
+      strat_by = fct_recode(
+        strat_by,
+        'Time is measured in hours after falling asleep' = 'sleep',
+        'Time is measured in hours after midnight' = 'midnight'
+      )
+    ) %>%
+    as_grouped_data(groups = 'strat_by') %>%
+    as_flextable(hide_grouplabel = TRUE) %>%
+    theme_box() %>%
+    set_header_labels(n_msr = 'BP sampling variation') %>%
+    width(width = 1.25) %>%
+    width(j = 1, width = 2.3) %>%
+    align(align = 'center', part = 'all') %>%
+    align(j = 1, align = 'left', part = 'body') %>% 
+    bg(i = ~ !is.na(strat_by), bg = 'grey80') %>% 
+    italic(i = ~ !is.na(strat_by), italic = TRUE) %>% 
+    height(height = 1.5, part = 'header') %>%
+    footnote(
+      i = 1,
+      j = 1,
+      ref_symbols = '',
+      value = as_paragraph(
+        write_abbrevs(abbrevs[c('CARDIA', 'BP', 'JHS')])
+      )
+    ) %>% 
+    footnote(
+      i = c(2, 10), 
+      j = 1,  
+      part = 'body', 
+      ref_symbols = fts[1],
+      value = as_paragraph(
+        'Because of its use in previous studies, the Kappa statistic obtained',
+        ' by this blood pressure sampling variation is a reference value for',
+        ' other blood pressure sampling variations that use the',
+        ' same time definition (i.e., hours since falling asleep',
+        ' or hours since midnight).'
+      )
+    ) %>% 
+    footnote(
+      i = c(2, 3), 
+      j = 2,  
+      part = 'body', 
+      ref_symbols = fts[2],
+      value = as_paragraph(
+        'Table values are Kappa statistic for the referent blood pressure',
+        ' sampling variations and the change in Kappa statistic',
+        ' (95% confidence interval) relative to the reference for',
+        ' non-referent blood pressure sampling variations.'
+      )
+    ) %>% 
+    footnote(i = 1, j = 1, part = 'header', ref_symbols = '', 
+             value = footnote_kappa_defn) %>% 
+    footnote(i = 1, j = 1, part = 'header', ref_symbols = '', 
+             value = footnote_nht_defn)
+  
+  tbls_main %<>% add_row(
+    object = list(tbl_kappa_comparisons_wrt_234_flex), 
+    caption = "Difference (95% confidence interval) in chance-corrected agreement (Kappa statistic) with a full night of ambulatory blood pressure monitoring in classification of nocturnal hypertension for best blood pressure sampling variation within each category versus sampling blood pressure at 2, 3, and 4 hours after falling asleep or midnight."
+  )
+  
+  # BP sampler prevalence ratios --------------------------------------------
+  control_labs <- recode(
+    control_vars,
+    "age" = "participant age",
+    "sex" = "sex",
+    "diabetes" = "diabetes status",
+    "currentsmoker" = "smoking status",
+    "bpmeds" = "antihypertensive medication use",
+    "slp_duration" = "sleep duration",
+    "cln_sbp" = "systolic blood pressure in the clinical setting",
+    "cln_dbp" = "diastolic blood pressure in the clinical setting"
+  )
+  
+  control_footer <- paste(
+    "Prevalence ratios are adjusted for",
+    glue_collapse(control_labs, sep = ', ', last = ' and ')
+  ) %>% 
+    as_paragraph()
+  
+  inline_prs <- tbl_prs %>% 
+    map(
+      ~ .x %>% 
+        mutate(
+          ID = str_replace_all(ID, ' |, ', '_'),
+          n_msr = str_replace_all(n_msr, ' ', '_'),
+          n_msr = str_remove(n_msr, '_BP_measurements'),
+          n_msr = paste0('bp_', n_msr),
+          across(.cols = starts_with('pr'), 
+                 .fns = str_replace, 
+                 pattern = '\n', 
+                 replacement = ' ')
+        ) %>% 
+        pivot_longer(cols = starts_with('pr')) %>% 
+        as_inline(tbl_variables = c("ID", "name"),
+                  tbl_values = 'value')
+    )
+  
+  .pr_flex_table_maker <- function(outcome, exposure, group, data){
+    
+    flex_object <- data %>% 
+      as_grouped_data(groups = 'n_msr') %>%
+      .[-1, ] %>%
+      as_flextable(hide_grouplabel = TRUE) %>%
+      width(width = 1.1) %>%
+      width(j = 1, width = 1.5) %>%
+      set_header_labels(
+        ID = '',
+        pr_string_Overall = 'Prevalence ratio',
+        pr_pval_Overall = 'P-value',
+        pr_string_CARDIA = 'Prevalence ratio',
+        pr_pval_CARDIA = 'P-value',
+        pr_string_JHS = 'Prevalence ratio',
+        pr_pval_JHS = 'P-value'
+      ) %>%
+      add_header_row(
+        values = c("Blood pressure\nsampling variation",
+                   "Overall", "CARDIA", "JHS"),
+        colwidths = c(1, 2, 2, 2)
+      ) %>%
+      theme_box() %>%
+      align(align = 'center', part = 'all') %>%
+      align(j = 1, align = 'left', part = 'all') %>%
+      merge_at(i = 1:2, j=1, part = 'header') %>% 
+      bg(i = ~ !is.na(n_msr), bg = 'grey80') %>% 
+      italic(i = ~ !is.na(n_msr), italic = TRUE) %>% 
+      height(height = 1.5, part = 'header') %>% 
+      footnote(i = 1, j = 1, ref_symbols = '', value = as_paragraph(
+        write_abbrevs(abbrevs[c('CARDIA', 'JHS')])))
+    
+    if(outcome == 'alb'){
+      footnote_outcome_defn <- as_paragraph(
+        "Albuminuria was defined as an albumin-to-creatinine",
+        " ratio \u226530 mg/g"
+      )
+    } else {
+      footnote_outcome_defn <- as_paragraph(
+        "Left ventricular hypertrophy was defined as a left ventricular",
+        " mass index >95 g/m2 in women and >115 g/m2 in men."
+      )
+    }
+    
+    flex_object %<>% footnote(
+      i = 1,
+      j = 1,
+      ref_symbols = '',
+      value = footnote_outcome_defn,
+      part = 'header'
+    )
+    
+    fts_counter <- 1
+    
+    if(group == 'winners'){
+      
+      flex_object %<>% footnote(
+        i = 1,
+        j = 1,
+        ref_symbols = fts[fts_counter],
+        value = footnote_winners,
+        part = 'header'
+      )
+      fts_counter <- fts_counter + 1
+    }
+    
+    flex_object %<>%
+      footnote(
+        i = 2,
+        j = c(2, 4, 6),
+        ref_symbols = fts[fts_counter],
+        value = control_footer,
+        part = 'header'
+      )
+    
+    fts_counter <- fts_counter + 1
+    
+    if(exposure == 'sbp'){
+      exposure_footer <- as_paragraph(
+        "Prevalence ratios correspond to 10 mm Hg higher ",
+        "systolic blood pressure"
+      )
+    } else {
+      exposure_footer <- as_paragraph(
+        "Prevalence ratios correspond to 5 mm Hg higher ",
+        "diastolic blood pressure"
+      )
+    }
+    
+    flex_object %<>% 
+      footnote(
+        i = 2,
+        j = c(2, 4, 6),
+        ref_symbols = fts[fts_counter],
+        part = 'header',
+        value = exposure_footer
+      )
+    
+    fts_counter <- fts_counter + 1
+    
+    flex_object
+    
+  }
+  
+  tbl_prs_flex <- enframe(tbl_prs) %>% 
+    mutate(name = str_replace(name, 'bp$', 'bp_everyone')) %>% 
+    separate(name, into = c('outcome', 'exposure', 'group')) %>% 
+    rowwise() %>% 
+    mutate(tbl = list(
+      .pr_flex_table_maker(outcome, exposure, group, value)
+    )) %>% 
+    unite(col = 'id', outcome, exposure, group, sep = '_') %>% 
+    select(-value) %>% 
+    deframe()
+  
+  tbls_main %<>% add_row(
+    object = list(tbl_prs_flex$lvh_sbp_winners), 
+    caption = "Prevalence ratios (95% confidence intervals) for left ventricular hypertrophy associated with mean systolic blood pressure.")
+  
+  tbls_supp %<>% add_row(
+    object = list(tbl_prs_flex$alb_sbp_winners), 
+    caption = "Prevalence ratios (95% confidence intervals) for albuminuria associated with mean systolic blood pressure.")
+  
+  
+  # BP sampler C-stats ------------------------------------------------------
+  
+  inline_cstats <- tbl_cstats %>% 
+    map(
+      ~ .x %>% 
+        mutate(
+          ID = str_replace_all(ID, ' |, ', '_'),
+          n_msr = str_replace_all(n_msr, ' ', '_'),
+          n_msr = str_remove(n_msr, '_BP_measurements'),
+          n_msr = paste0('bp_', n_msr),
+          across(.cols = starts_with('cstat'), 
+                 .fns = str_replace, 
+                 pattern = '\n', 
+                 replacement = ' ')
+        ) %>% 
+        pivot_longer(cols = starts_with('cstat')) %>% 
+        as_inline(tbl_variables = c("ID", "name"),
+                  tbl_values = 'value')
+    )
+  
+  
+  .cstat_table_maker <- function(outcome, group, data){
+    
+    flex_object <- as_grouped_data(data, groups = 'n_msr') %>% 
+      .[-1, ] %>% 
+      as_flextable(hide_grouplabel = TRUE) %>%
+      width(width = 1.1) %>%
+      width(j = 1, width = 1.5) %>%
+      set_header_labels(
+        ID = '',
+        cstat_string_Overall = 'C-statistic\n(95% CI)',
+        cstat_pval_Overall = 'P-value for\ndifference',
+        cstat_string_CARDIA = 'C-statistic\n(95% CI)',
+        cstat_pval_CARDIA = 'P-value for\ndifference',
+        cstat_string_JHS = 'C-statistic\n(95% CI)',
+        cstat_pval_JHS = 'P-value for\ndifference'
+      ) %>% 
+      add_header_row(
+        values = c("Blood pressure\nsampling variation", 
+                   "Overall", "CARDIA", "JHS"),
+        colwidths = c(1, 2, 2, 2)
+      ) %>% 
+      theme_box() %>% 
+      align(align = 'center', part = 'all') %>% 
+      align(j = 1, align = 'left', part = 'all') %>% 
+      bg(i = ~ !is.na(n_msr), bg = 'grey80') %>% 
+      merge_at(i = 1:2, j=1, part = 'header') %>% 
+      italic(i = ~ !is.na(n_msr), italic = TRUE) %>% 
+      height(height = 1.5, part = 'header') %>% 
+      footnote(i = 1, j = 1, ref_symbols = '', value = as_paragraph(
+        write_abbrevs(abbrevs[c('CARDIA', 'BP', 'C', 'CI', 'JHS')])))
+    
+    if(outcome == 'alb'){
+      footnote_outcome_defn <- as_paragraph(
+        "Albuminuria was defined as an albumin-to-creatinine",
+        " ratio \u226530 mg/g"
+      )
+    } else {
+      footnote_outcome_defn <- as_paragraph(
+        "Left ventricular hypertrophy was defined as a left ventricular",
+        " mass index >95 g/m2 in women and >115 g/m2 in men."
+      )
+    }
+    
+    flex_object %<>% footnote(
+      i = 1,
+      j = 1,
+      ref_symbols = '',
+      value = footnote_outcome_defn,
+      part = 'header'
+    )
+    
+    fts_counter <- 1
+    
+    
+    if(group == 'winners'){
+      
+      flex_object %<>% footnote(
+        i = 1,
+        j = 1,
+        ref_symbols = fts[fts_counter],
+        value = footnote_winners,
+        part = 'header'
+      )
+      
+      fts_counter <- fts_counter + 1
+      
+    }
+    
+    flex_object %<>% footnote(
+      i = 2,
+      j = 1,
+      ref_symbols = fts[fts_counter],
+      value = as_paragraph('Foregoing blood pressure measurement',
+                           ' indicates omission of any term in the model',
+                           ' predictors that corresponds to mean blood', 
+                           ' pressure during sleep'),
+      part = 'body'
+    )
+    
+    fts_counter <- fts_counter + 1
+    
+    flex_object %<>%
+      footnote(
+        i = 2, j = 2, part = 'header', ref_symbols = fts[fts_counter],
+        value = as_paragraph(
+          'All concordance statistics obtained from blood pressure ',
+          'sampling variations were compared to ',
+          'the concordance statistic obtained when blood pressure was ',
+          'measured throughout sleep.'
+        )
+      ) 
+    
+    fts_counter <- fts_counter + 1
+    
+    flex_object %<>% 
+      footnote(
+        i = 2, j = 3, part = 'header', ref_symbols = fts[fts_counter],
+        value = as_paragraph('P-values were obtained using ',
+                             'DeLong\'s test for correlated concordance statistics.')
+      )
+    
+
+    flex_object
+    
+  }
+  
+  tbl_cstats_flex <- enframe(tbl_cstats) %>% 
+    mutate(name = if_else(str_detect(name, 'winners'),
+                          name, paste0(name, '_everyone'))) %>% 
+    separate(name, into = c('outcome', 'group')) %>% 
+    rowwise() %>% 
+    mutate(table = list(.cstat_table_maker(outcome, group, value))) %>% 
+    unite(col = 'id', outcome, group) %>% 
+    select(-value) %>% 
+    deframe()
+  
+  tbls_main %<>% add_row(
+    object = list(tbl_cstats_flex$lvh_winners), 
+    caption = "Concordance statistics for left-ventricular hypertrophy in a multivariable-adjusted model with a complete sleep blood pressure recording and 12 samples of sleep blood pressure") 
+  
+  tbls_supp %<>% add_row(
+    object = list(tbl_cstats_flex$alb_winners), 
+    caption = "Concordance statistics for albuminuria in a multivariable-adjusted model with a complete sleep blood pressure recording and 12 samples of sleep blood pressure")
   
   # Format and bind ---------------------------------------------------------
   
@@ -308,7 +754,11 @@ make_report_tables <- function(
   inline_output <- list(
     characteristics = tbl_characteristics_inline,
     exclusions = tbl_exclusions_inline,
-    accuracy = tbl_accuracy_inline
+    accuracy_winners = tbl_accuracy_inline_winners,
+    accuracy_everyone = tbl_accuracy_inline_everyone,
+    prs = inline_prs,
+    cstats = inline_cstats,
+    kappa_234 = inline_kappa_comparisons_wrt_234
   )
   
   # combine table objects and inline output ---------------------------------

@@ -7,25 +7,32 @@
 ##' @param winning_samplers
 make_tblcstat <- function(study_analyzed, winning_samplers) {
   
+  rspec <- round_spec() %>% 
+    round_half_even() %>% 
+    round_using_magnitude(
+      digits = c(3,2,1),
+      breaks = c(1, 10, Inf)
+    )
+  
   cstat_tbl_data <- study_analyzed %>% 
     unnest_wider(cstat_tbl, names_sep = '_') %>% 
     mutate(
       ID = fct_relevel(ID, 
-        'Measuring BP throughout sleep',
+        'Full night of ABPM',
         'Foregoing BP measurement'), 
-      cstat_string = tbl_string(
+      cstat_string = table_glue(
         '{cstat_tbl_est}\n({cstat_tbl_lwr}, {cstat_tbl_upr})', 
-        decimals = c(3, 2, 1)
+        rspec = rspec
       )
     ) %>% 
     group_by(study, outcome) %>% 
     mutate(
-      cstat_ref = cstat[ID == 'Measuring BP throughout sleep'],
+      cstat_ref = cstat[ID == 'Full night of ABPM'],
       cstat_tst = map2(cstat, cstat_ref, roc.test, paired = TRUE),
       cstat_pval = map_dbl(cstat_tst, 'p.value')
     ) %>% 
     select(ID, study, n_msr, strategy, outcome, cstat_string, cstat_pval) %>%  
-    mutate(cstat_pval = tbl_pval(cstat_pval)) %>% 
+    mutate(cstat_pval = table_pvalue(cstat_pval)) %>% 
     group_by(outcome) %>% 
     nest() %>% 
     mutate(
@@ -43,10 +50,10 @@ make_tblcstat <- function(study_analyzed, winning_samplers) {
     deframe()
   
   cstat_tbl_winners <- cstat_tbl_data %>% 
-    map(filter, ID %in% winning_samplers | str_detect(ID, '^Fore|^Meas')) %>% 
+    map(filter, ID %in% winning_samplers | str_detect(ID, '^Fore|^Full')) %>% 
     set_names(glue("{names(.)}_winners"))
   
-  cstat_tbls <- flatten(list(
+  flatten(list(
     winners  = cstat_tbl_winners,
     everyone = cstat_tbl_data
   )) %>%
@@ -62,39 +69,13 @@ make_tblcstat <- function(study_analyzed, winning_samplers) {
           across(
             .cols = contains('cstat_pval'),
             .fns = ~ replace(.x, 
-              ID == 'Measuring BP throughout sleep', 
+              ID == 'Full night of ABPM', 
               "reference")
           ),
-          ID = str_replace(as.character(ID), "\\d BP measurements ", ""),
-          ID = str_replace(ID, 'falling asleep', 'sleep')
+          ID = str_replace(as.character(ID), "\\d BP measurements ", "")
         ) %>%
         select(-strategy)
     )
-  
-  map(
-    .x = cstat_tbls, 
-    .f = ~ as_grouped_data(.x, groups = 'n_msr') %>% 
-      .[-1, ] %>% 
-      as_flextable(hide_grouplabel = TRUE) %>%
-      width(width = 1.1) %>%
-      width(j = 1, width = 1.5) %>%
-      set_header_labels(
-        ID = 'Blood pressure\nsampling variation',
-        cstat_string_Overall = 'C-statistic\n(95% CI)',
-        cstat_pval_Overall = 'P-value for\ndifference',
-        cstat_string_CARDIA = 'C-statistic\n(95% CI)',
-        cstat_pval_CARDIA = 'P-value for\ndifference',
-        cstat_string_JHS = 'C-statistic\n(95% CI)',
-        cstat_pval_JHS = 'P-value for\ndifference'
-      ) %>% 
-      add_header_row(
-        values = c("", "Overall", "CARDIA", "JHS"),
-        colwidths = c(1, 2, 2, 2)
-      ) %>% 
-      theme_box() %>% 
-      align(align = 'center', part = 'all') %>% 
-      align(j = 1, align = 'left', part = 'all')
-  )
 
 }
 
@@ -138,7 +119,7 @@ make_tblcstat <- function(study_analyzed, winning_samplers) {
 #     ),
 #     cstat_ostring = map_chr(
 #       .x = cstat_tbl, 
-#       .f = ~ tbl_string("{.x['est']}\n({.x['lwr']}, {.x['upr']})",
+#       .f = ~ table_glue("{.x['est']}\n({.x['lwr']}, {.x['upr']})",
 #         decimals = c(3, 2, 1))
 #     )
 #   ) %>% 

@@ -9,8 +9,8 @@ make_tblvariations <- function(design_evaluated) {
   design_evaluated %>% 
     filter(study == 'Overall') %>% 
     mutate(
-      ID = str_replace(ID, 
-        pattern = ' hours after midnight| hours after falling asleep', 
+      ID = str_replace(ID,
+        pattern = ' hours after midnight| hours after falling asleep',
         replacement = ''),
       ID = str_replace(ID, 
         pattern = '\\d? BP measurements ', 
@@ -19,6 +19,11 @@ make_tblvariations <- function(design_evaluated) {
         "2msr" = "2",
         "3msr" = "3",
         "4msr" = "4"),
+      ID = if_else(
+        condition = time_var == 'tsm',
+        true = str_replace_all(ID, '(\\d)', '\\1am'),
+        false = ID
+      ),
       strategy = recode(strategy,
         "cnctr" = " Consecutive BP measurements",
         "distr" = " Distributed BP measurements"),

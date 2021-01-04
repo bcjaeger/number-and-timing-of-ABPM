@@ -117,14 +117,14 @@ make_study_design <- function(abpm_long, nht_sbp, nht_dbp) {
           
           if(strat == 'cnctr') 
             return(
-              tbl_string('{msr_prepend} starting at ',
+              table_glue('{msr_prepend} starting at ',
                 '{as.integer(samp[1])} {time_append}')
             )
           
           if(strat == 'distr'){
             times_collapsed <- 
               glue_collapse(samp, sep = ', ', last = ' and ')
-            return(tbl_string('{msr_prepend} at ',
+            return(table_glue('{msr_prepend} at ',
               '{times_collapsed} {time_append}'))
           }
           

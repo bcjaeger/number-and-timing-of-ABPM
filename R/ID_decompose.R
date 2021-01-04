@@ -23,8 +23,7 @@ ID_decompose <- function(data, remove_id = TRUE) {
         condition = strategy == 'distr',
         str_replace(n_msr, 'BP', 'Distributed BP'),
         str_replace(n_msr, 'BP', 'Consecutive BP')
-      ),
-      descr = str_replace(descr, 'falling asleep', 'sleep')
+      )
     )
   
   if(!remove_id) out <- mutate(out, ID = str_replace(ID, ' xx ', ' '))

@@ -20,16 +20,30 @@ clean_cardia_abpm <- function() {
     "derived"
   )
   
-  cardia_abpm <- file.path(
-    abpm_file_path,
-    'abpm_long_cardia_y30.csv'
-  ) %>% 
-    read_csv() %>% 
-    set_names(tolower(names(.))) %>%
-    rename(tsm = time, subjid = sid) %>%
-    filter(period %in% c("AW","SL")) %>% 
+  cardia_abpm <- 
+    read_sas(
+      file.path(
+        "Y:",
+        "REGARDS",
+        "CARDIA",
+        "Data",
+        "Population",
+        "Bharat",
+        "A1866-datasets for Byron_December 2020",
+        "Y30ABPM_analysisfiles",
+        "spacelabs_abp2_edited.sas7bdat"
+      )
+    ) %>% 
+    set_names(tolower(names(.))) %>% 
+    filter(period %in% c("AW","SL"), valid_reading == 1) %>% 
+    mutate(tim = (tim / (60^2)) %% 24) %>% 
+    rename(tsm = tim, 
+           subjid = id,
+           sbp = sysbp,
+           dbp = diabp) %>% 
     group_by(subjid) %>% 
     mutate(
+      period = as.character(period),
       nreadings_slp = sum(period == "SL"),
       nreadings_awk  = sum(period == "AW"),
       phase_awk = mark_period(period, 'AW'),
@@ -55,11 +69,9 @@ clean_cardia_abpm <- function() {
     ) %>% 
     select(
       -period,
-      -center,
-      -order,
+      -site,
+      -reading,
       -hr,
-      -daytime,
-      -nighttime,
       -nreadings_awk
     )
   

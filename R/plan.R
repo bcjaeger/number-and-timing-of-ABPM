@@ -7,7 +7,7 @@ the_plan <- drake_plan(
   # definition of nocturnal hypertension
   nht_sbp = 120, nht_dbp = 70, 
   # number of bootstrap replicates to use
-  boot_iters = 10000,
+  boot_iters = 2500,
   
   # control variables for models
   # note: (race is not included b/c all JHS participants are black)
@@ -17,7 +17,7 @@ the_plan <- drake_plan(
   
   # coronary artery risk development in young adults
   cardia_abpm = clean_cardia_abpm(), 
-  cardia_y30 = clean_cardia_y30(),
+  cardia_y30 = clean_cardia_a1866(),
   
   # jackson heart study
   jhs_abpm = clean_jhs_abpm(), 
@@ -81,11 +81,30 @@ the_plan <- drake_plan(
 
   # tabulate kappas and absolute error values
   tbl_accuracy = make_tblacc(winning_samplers, design_evaluated),
+  
+  n_variations_with_good_kappa = bracket_drop(
+    tbl_accuracy$everyone$tbv_kap_Overall) %>% 
+    as.numeric() %>% 
+    enframe() %>% 
+    summarize(answer = sum(value >= 0.80)) %>% 
+    pull(answer),
 
   # bootstrap the kappa differences (huge time sink)
   kappa_comparisons = compare_kappas(design_evaluated,
     winning_samplers, abpm_wide, boot_iters),
 
+  kappa_comparisons_wrt_234 = make_specific_kappa_comparisons(
+    design_evaluated,
+    winning_samplers,
+    abpm_wide,
+    boot_iters
+  ),
+  
+  tbl_kappa_comparisons_wrt_234 = make_tblkappa_234(
+    kappa_comparisons_wrt_234,
+    design_evaluated
+  ),
+  
   # tile figures of kappa differences
   fig_kappa_comparison = make_figkappa(kappa_comparisons),
 
@@ -106,21 +125,12 @@ the_plan <- drake_plan(
   report_tables = make_report_tables(
     tbl_characteristics = tbl_characteristics,
     tbl_accuracy = tbl_accuracy,
+    tbl_kappa_comparisons_wrt_234 = tbl_kappa_comparisons_wrt_234,
     tbl_exclusions = exclusions$table,
-    tbl_variations = tbl_variations
+    tbl_variations = tbl_variations,
+    tbl_prs = tbl_prs,
+    tbl_cstats = tbl_cstats,
+    control_vars = control_vars
   )
-  
-  
-  # report = make_report(
-  #   tbl_exclusions = exclusions$table,
-  #   tbl_variations = tbl_variations,
-  #   tbl_characteristics = tbl_characteristics,
-  #   tbl_accuracy = tbl_accuracy,
-  #   tbl_cstats = tbl_cstats,
-  #   tbl_prs = tbl_prs,
-  #   control_vars = control_vars,
-  #   fig_kappa_comparison = fig_kappa_comparison,
-  #   fig_errors = NULL
-  # )
   
 )

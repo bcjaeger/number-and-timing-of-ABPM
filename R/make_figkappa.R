@@ -13,6 +13,10 @@ make_figkappa <- function(kappa_comparisons) {
       str_replace('hours', '')
   }
   
+  rspec <- round_spec() %>% 
+    round_half_even() %>% 
+    round_using_decimal(digits = 2)
+  
   gg_dat <- kappa_comparisons %>% 
     rename(study_outer = study) %>% 
     unnest(.results) 
@@ -40,7 +44,7 @@ make_figkappa <- function(kappa_comparisons) {
             nudge_y = if_else(study == 'CARDIA', 0, 0),
             i_strings = if_else(study == 'CARDIA', i-1, i+1) + nudge_x,
             j_strings = if_else(study == 'CARDIA', j+1, j-1) + nudge_y,
-            tbv = tbl_string("{study}: {100*est}", decimals = c(2,2,2))
+            tbv = table_glue("{study}: {100*est}", rspec = rspec)
           )
       }
     )
@@ -62,13 +66,13 @@ make_figkappa <- function(kappa_comparisons) {
             ),
             tbv = if_else(
               study == 'CARDIA',
-              true = tbl_string(
+              true = table_glue(
                 "{-100*est}\n({-100*upr}, {-100*lwr})", 
-                decimals = c(2,2,2)
+                rspec = rspec
               ),
-              false = tbl_string(
+              false = table_glue(
                 "{100*est}\n({100*lwr}, {100*upr})", 
-                decimals = c(2,2,2)
+                rspec = rspec
               )
             ),
             fig_fill = case_when(

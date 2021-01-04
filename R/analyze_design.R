@@ -93,11 +93,11 @@ analyze_design <- function(design_init, abpm_wide, control_vars) {
       bp_data = map(bp_data, left_join, analysis, by = 'subjid')
     ) %>% 
     select(ID, study, time_var, strategy, n_msr, bp_data) %>%
-    add_row(ID = 'Measuring BP throughout sleep', study = 'Overall', 
+    add_row(ID = 'Full night of ABPM', study = 'Overall', 
       bp_data = list(analysis)) %>% 
-    add_row(ID = 'Measuring BP throughout sleep', study = 'CARDIA', 
+    add_row(ID = 'Full night of ABPM', study = 'CARDIA', 
       bp_data = list(filter(analysis, study == 'CARDIA'))) %>% 
-    add_row(ID = 'Measuring BP throughout sleep', study = 'JHS', 
+    add_row(ID = 'Full night of ABPM', study = 'JHS', 
       bp_data = list(filter(analysis, study == 'JHS'))) %>% 
     add_row(ID = 'Foregoing BP measurement', study = 'Overall', 
       bp_data = list(analysis)) %>%
@@ -107,7 +107,7 @@ analyze_design <- function(design_init, abpm_wide, control_vars) {
       bp_data = list(filter(analysis, study == 'JHS'))) %>% 
     mutate(
       model_type = case_when(
-        ID == 'Measuring BP throughout sleep' ~ 'full',
+        ID == 'Full night of ABPM' ~ 'full',
         ID == 'Foregoing BP measurement' ~ 'rdcd',
         TRUE ~ 'samp'
       )
