@@ -158,57 +158,15 @@ make_report_tables <- function(
   # Summary of BP samplers --------------------------------------------------
   
   tbl_variations_flex <- tbl_variations %>% 
-    mutate(
-      variants = str_replace(
-        variants, 
-        pattern = fixed(
-          'starting at 1; starting at 2; starting at 3; and starting at 4'
-        ),
-        replacement = 'starting at 1, 2, 3, or 4 hours after falling asleep'
-      ),
-      variants = str_replace(
-        variants, 
-        pattern = fixed(
-          'starting at 1am; starting at 2am; starting at 3am; and starting at 4am'
-        ),
-        replacement = 'starting at 1am, 2am, 3am, or 4am'
-      ),
-      variants = str_replace(
-        variants, 
-        pattern = '4 and 5$',
-        replacement = '4 and 5 hours after sleep'
-      )
-    ) %>% 
     flextable(theme_fun = theme_box) %>% 
     set_header_labels(
-      description = 'Description of 12 categories',
-      variants = "74 BP sampling variations"
+      description = 'Group description',
+      variants = "BP sampling variations"
     ) %>% 
     width(j = 1, width = 2.5) %>% 
     width(j = 2, width = 4.5) %>% 
     align(align = 'center', part = 'header') %>% 
-    align(align = 'left', part = 'body') %>% 
-    footnote(
-      i = 1, 
-      j = 1, 
-      part = 'header',
-      ref_symbols = fts[1],
-      value = as_paragraph(
-        'categories of blood pressure sampling variations are defined by',
-        ' the number of measurements taken (2, 3, or 4), whether the',
-        ' measurements are consecutive or distributed, and whether ',
-        ' measurements are timed relative to midnight or the onset of sleep.'
-      )
-    ) %>% 
-    footnote(
-      i = 1, 
-      j = 2, 
-      part = 'header',
-      ref_symbols = fts[2],
-      value = as_paragraph(
-        'blood pressure sampling variations are grouped by category'
-      )
-    )
+    align(align = 'left', part = 'body')
   
   tbls_supp %<>% add_row(
     object = list(tbl_variations_flex), 
@@ -338,8 +296,10 @@ make_report_tables <- function(
   
   tbls_main %<>% add_row(
     object = list(tbl_accuracy_flex$winners), 
-    caption = "Kappa statistics and mean absolute error for the blood pressure sampling variation within each category that obtained the highest overall chance-corrected agreement (i.e., Kappa statistic) with ambulatory blood pressure monitoring throughout sleep."
+    caption = "Kappa statistics and mean absolute error for the blood pressure sampling variation that obtained the highest overall chance-corrected agreement (i.e., Kappa statistic) with ambulatory blood pressure monitoring throughout sleep within each of the 12 categories defined by number of measurements, sampling strategy and time structure."
   ) 
+  
+  
   
   tbls_supp %<>% add_row(
     object = list(tbl_accuracy_flex$everyone), 
@@ -425,7 +385,7 @@ make_report_tables <- function(
   
   tbls_main %<>% add_row(
     object = list(tbl_kappa_comparisons_wrt_234_flex), 
-    caption = "Difference (95% confidence interval) in chance-corrected agreement (Kappa statistic) with a full night of ambulatory blood pressure monitoring in classification of nocturnal hypertension for best blood pressure sampling variation within each category versus sampling blood pressure at 2, 3, and 4 hours after falling asleep or midnight."
+    caption = "Difference (95% confidence interval) in chance-corrected agreement (Kappa statistic) with a full night of ambulatory blood pressure monitoring in classification of nocturnal hypertension for the best blood pressure sampling variation within each of the 12 categories defined by number of measurements, sampling strategy and time structure versus sampling blood pressure at 2, 3, and 4 hours after falling asleep or midnight."
   )
   
   # BP sampler prevalence ratios --------------------------------------------
@@ -728,11 +688,11 @@ make_report_tables <- function(
   
   tbls_main %<>% add_row(
     object = list(tbl_cstats_flex$lvh_winners), 
-    caption = "Concordance statistics for left-ventricular hypertrophy in a multivariable-adjusted model with a complete sleep blood pressure recording and 12 samples of sleep blood pressure") 
+    caption = "Concordance statistics for left-ventricular hypertrophy in a multivariable-adjusted model.") 
   
   tbls_supp %<>% add_row(
     object = list(tbl_cstats_flex$alb_winners), 
-    caption = "Concordance statistics for albuminuria in a multivariable-adjusted model with a complete sleep blood pressure recording and 12 samples of sleep blood pressure")
+    caption = "Concordance statistics for albuminuria in a multivariable-adjusted model")
   
   # Format and bind ---------------------------------------------------------
   

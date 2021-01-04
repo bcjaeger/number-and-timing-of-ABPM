@@ -62,3 +62,10 @@ University of Minnesota (HHSN2682018000 06I), and Kaiser Foundation
 Research Institute (HHSN268201 800004I). The funding to conduct
 ambulatory blood pressure monitoring in the CARDIA study was provided by
 grant 15SFRN2390002 from the American Heart Association.
+
+# Disclaimer
+
+The views expressed in this manuscript are those of the authors and do
+not necessarily represent the views of the National Heart, Lung, and
+Blood Institute; the National Institutes of Health; or the U.S.
+Department of Health and Human Services.
