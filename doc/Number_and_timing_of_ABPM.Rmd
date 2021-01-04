@@ -226,7 +226,9 @@ In conclusion, measuring BP 3 or 4 times during sleep with at least 1 hour betwe
 
 # Acknowledgements
 
-The JHS (Jackson Heart Study) is supported by contracts HHSN268201300046C, HHSN268201300047C, HHSNs2682 01300048C, HHSN268201300049C, and HHSN2682013000 50C from the National Heart, Lung, and Blood Institute (NHLBI) and the National Institute on Minority Health and Health Disparities. The CARDIA (Coronary Artery Risk Development in Young Adults) study is conducted and supported by the NHLBI in collaboration with the University of Alabama at Birmingham (HHSN268201800005I and HHSN268201800007I), Northwestern University (HHSN268 201800003I), University of Minnesota (HHSN2682018000 06I), and Kaiser Foundation Research Institute (HHSN268201 800004I). The funding to conduct ambulatory blood pressure monitoring in the CARDIA study was provided by grant 15SFRN2390002 from the American Heart Association.
+The Jackson Heart Study (JHS) is supported and conducted in collaboration with Jackson State University (HHSN268201800013I), Tougaloo College (HHSN268201800014I), the Mississippi State Department of Health (HHSN268201800015I/HHSN26800001) and the University of Mississippi Medical Center (HHSN268201800010I, HHSN268201800011I and HHSN268201800012I) contracts from the National Heart, Lung, and Blood Institute (NHLBI) and the National Institute for Minority Health and Health Disparities (NIMHD). The authors also wish to thank the staffs and participants of the JHS.
+
+The CARDIA (Coronary Artery Risk Development in Young Adults) study is conducted and supported by the NHLBI in collaboration with the University of Alabama at Birmingham (HHSN268201800005I and HHSN268201800007I), Northwestern University (HHSN268 201800003I), University of Minnesota (HHSN2682018000 06I), and Kaiser Foundation Research Institute (HHSN268201 800004I). The funding to conduct ambulatory blood pressure monitoring in the CARDIA study was provided by grant 15SFRN2390002 from the American Heart Association.
 
 
 <!-- MAIN TABLES -->
