@@ -1,0 +1,69 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = FALSE,
+  comment = "#>"
+)
+
+library(tidyverse)
+library(table.glue)
+library(drake)
+
+loadd(report_tables)
+loadd(n_variations_with_good_kappa)
+loadd(design_evaluated)
+
+tbls <- ungroup(report_tables$tables) %>% 
+  mutate(caption = paste(pre_cap, caption, sep = ': '),
+         split_me = str_remove(split_me, '^table_')) %>% 
+  split(.$split_me) %>% 
+  map(select, -split_me)
+
+inline <- report_tables$inline
+
+kappa_range_3msr_asleep <- design_evaluated %>% 
+  filter(str_detect(ID, '^3.+asleep$')) %>% 
+  filter(kap_nht_est %in% c(min(kap_nht_est), max(kap_nht_est))) %>% 
+  pull(kap_nht_est) 
+
+kappa_range_3msr_midnight <- design_evaluated %>% 
+  filter(str_detect(ID, '^3.+midnight$')) %>% 
+  filter(kap_nht_est %in% c(min(kap_nht_est), max(kap_nht_est))) %>% 
+  pull(kap_nht_est) 
+
+inline_kappa_range_3msr_asleep <- table_glue(
+  "{kappa_range_3msr_asleep[1]} to {kappa_range_3msr_asleep[2]}"
+)
+
+inline_kappa_range_3msr_midnight <- table_glue(
+  "{kappa_range_3msr_midnight[1]} to {kappa_range_3msr_midnight[2]}"
+)
+
+n_kappa_gteq_80 <- design_evaluated %>% 
+  filter(study=='Overall', kap_nht_est >= 0.80) %>% 
+  nrow()
+
+```
+
+# Number and timing of ABPM
+
+This repository contains all of the R code used to generate results for the manuscript "Number and Timing of Ambulatory Blood Pressure Monitoring Measurements"
+
+# Abstract
+
+Ambulatory blood pressure (BP) monitoring (ABPM) may cause sleep disturbances. Some home BP monitoring (HBPM) devices obtain a limited number of BP readings during sleep and may be preferred to ABPM. However, it is unclear how closely a few BP readings approximate a full night of ABPM. We used data from the Jackson Heart (N=`r inline$exclusions$exc_4_all_bps$JHS`) and Coronary Artery Risk Development in Young Adults (N=`r inline$exclusions$exc_4_all_bps$CARDIA`) studies to evaluate 74 alternatives for sampling BP during sleep. We sampled 2‒4 BP measurements at specific times from a full night of ABPM and computed chance-corrected agreement (i.e., Kappa) between the full night of ABPM and the subset of BP readings for classification of nocturnal hypertension (i.e., mean asleep systolic BP≥120 mmHg or diastolic BP≥70 mmHg). Measuring BP at 2, 3, and 4 hours after falling asleep, an approach applied by some HBPM devices, obtained Kappa of `r bracket_insert_left(inline$accuracy_everyone$bp_3_Distributed$at_2_3_and_4_hours_after_falling_asleep$tbv_kap_Overall, '95% confidence interval [CI]: ')`. The highest Kappa was obtained by measuring BP at 1, 2, 4, and 5 hours after falling asleep: `r bracket_insert_left(inline$accuracy_everyone$bp_4_Distributed$at_1_2_4_and_5_hours_after_falling_asleep$tbv_kap_Overall, '95% CI: ')`. In conclusion, measuring BP 3 or 4 times during sleep at specific times may provide nocturnal hypertension diagnoses that have high agreement with a full night of ABPM.
+
+# Central Illustration
+
+Summary of Kappa statistics (multiplied by 100) for the 6 blood pressure sampling variations, based on time in hours since falling asleep, with the highest Kappa statistics in their category. Panels on the diagonal (white background) show the Kappa statistic values for participants in the JHS (lower left) and CARDIA study (upper right). Panels on the off-diagonal show bootstrapped differences between the Kappa statistics presented on the corresponding diagonal tiles. Differences between the JHS Kappa statistics are shown below the diagonal while differences between the CARDIA Kappa statistics are" shown above the diagonal.
+
+```{r, fig.width=7.1, fig.height = 6, dpi=300}
+loadd(fig_kappa_comparison)
+fig_kappa_comparison$sleep
+```
