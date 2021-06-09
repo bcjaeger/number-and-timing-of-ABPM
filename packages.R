@@ -16,6 +16,7 @@ library(naniar)
 library(fmsb)
 library(rms)
 library(Hmisc)
+library(splines)
 # reporting
 library(tibbleOne)
 library(table.glue)

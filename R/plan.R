@@ -39,6 +39,7 @@ the_plan <- drake_plan(
   
   # apply exclusions to the long data
   abpm_long = filter(abpm_long_pooled, subjid %in% exclusions$data$subjid),
+  
 
   # main analysis data
   abpm_wide = exclusions$data %>%
@@ -57,6 +58,10 @@ the_plan <- drake_plan(
       )
     ),
 
+  # figure showing estimated mean BP during sleep
+  # (requested by reviewer)
+  fig_mean_abpm = make_fig_mean_abpm(abpm_long, abpm_wide),
+  
   # table 1
   tbl_characteristics = make_tblone(data = abpm_wide),
 
@@ -68,6 +73,8 @@ the_plan <- drake_plan(
   design_evaluated = evaluate_bp_samplers(design_init, abpm_wide, boot_iters),
   
   tbl_variations = make_tblvariations(design_evaluated),
+  
+  tbl_means = make_tblmeans(design_evaluated, abpm_wide),
   
   spearman_cors = make_spcors(design_evaluated),
 
@@ -124,6 +131,7 @@ the_plan <- drake_plan(
    
   report_tables = make_report_tables(
     tbl_characteristics = tbl_characteristics,
+    tbl_means = tbl_means,
     tbl_accuracy = tbl_accuracy,
     tbl_kappa_comparisons_wrt_234 = tbl_kappa_comparisons_wrt_234,
     tbl_exclusions = exclusions$table,

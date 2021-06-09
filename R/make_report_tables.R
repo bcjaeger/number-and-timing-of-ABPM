@@ -8,6 +8,7 @@
 ##' @param 
 make_report_tables <- function(
   tbl_characteristics,
+  tbl_means,
   tbl_accuracy,
   tbl_kappa_comparisons_wrt_234,
   tbl_exclusions,
@@ -173,6 +174,84 @@ make_report_tables <- function(
     caption = glue("Summary of 12 groups of blood pressure sampling variations.")
   ) 
   
+  # Means of BP samplers ----------------------------------------------------
+  
+  tbl_means_full_abpm <- 
+    filter(tbl_means, n_msr == 'Full night of ABPM') %>% 
+    mutate(descr = 'Full night of ABPM') %>% 
+    select(n_msr, descr, study, time_var, everything(), -ID)
+  
+  tbl_means_samplers <- tbl_means %>% 
+    filter(n_msr != 'Full night of ABPM') %>% 
+    ID_decompose()
+  
+  rspec <- round_spec() %>% 
+    round_using_decimal(digits = 1)
+  
+  tbl_means_flex <- bind_rows(tbl_means_full_abpm,
+                              tbl_means_samplers) %>% 
+    mutate(
+      tbv_sbp = table_glue("{sbp_mean} ({sbp_sd})", rspec = rspec),
+      tbv_dbp = table_glue("{dbp_mean} ({dbp_sd})", rspec = rspec)
+    ) %>% 
+    select(n_msr, descr, study, starts_with('tbv')) %>% 
+    pivot_wider(values_from = starts_with("tbv"),
+                names_from = study) %>% 
+    select(n_msr, 
+           descr,
+           tbv_sbp_Overall,
+           tbv_sbp_CARDIA,
+           tbv_sbp_JHS,
+           tbv_dbp_Overall,
+           tbv_dbp_CARDIA,
+           tbv_dbp_JHS) %>% 
+    as_grouped_data(groups = 'n_msr') %>% 
+    .[-1, ] %>% 
+    as_flextable(hide_grouplabel = TRUE) %>% 
+    add_header_row(
+      values = c("BP sampling\nvariation", 
+                 "Mean (standard deviation)\nsystolic BP during sleep", 
+                 "Mean (standard deviation)\ndiastolic BP during sleep"
+      ),
+      colwidths = c(1, 3, 3)
+    ) %>% 
+    set_header_labels(
+      descr = "BP sampling\nvariation",
+      tbv_sbp_Overall = "Overall",
+      tbv_sbp_CARDIA = "CARDIA",
+      tbv_sbp_JHS = "JHS",
+      tbv_dbp_Overall = "Overall",
+      tbv_dbp_CARDIA = "CARDIA",
+      tbv_dbp_JHS = "JHS"
+    ) %>%
+    merge_v(part = 'header') %>% 
+    theme_box() %>%
+    width(width = 0.975) %>%
+    width(j = 1, width = 1.5) %>%
+    align(align = 'center', part = 'all') %>%
+    align(j = 1, align = 'left') %>%
+    merge_at(i = 1:2, j = 1, part = 'header') %>%
+    bg(i = ~ !is.na(n_msr), bg = 'grey80') %>%
+    italic(i = ~ !is.na(n_msr), italic = TRUE) %>%
+    height(height = 1.5, part = 'header') %>%
+    footnote(
+      i = 1,
+      j = 1,
+      ref_symbols = '',
+      value = as_paragraph(
+        write_abbrevs(abbrevs[c('ABPM', 'CARDIA', 'BP', 'JHS')])
+      )
+    )
+  
+  tbls_supp %<>% add_row(
+    object = list(tbl_means_flex), 
+    caption = glue(
+      "Mean (standard deviation) of systolic and diastolic blood pressure \\",
+      "according to a full night of ambulatory blood pressure monitoring \\",
+      "and 74 blood pressure sampling variations."
+    )
+  ) 
+
   # Characteristics ---------------------------------------------------------
   
   tbl_one <- tibble_one(tbl_characteristics$table, 
@@ -183,6 +262,15 @@ make_report_tables <- function(
     to_word() %>%
     width(width = 1.2) %>%
     width(j = 1, width = 3) %>%
+    footnote(
+      i = 2, 
+      j = 5,
+      ref_symbols = fts[5],
+      part = 'header',
+      value = as_paragraph(
+        'p-values correspond to t-tests and chi-square tests for continuous and categorical variables, respectively, for differences between cohorts.'
+      )
+    ) %>% 
     footnote(
       i = 1,
       j = 1,

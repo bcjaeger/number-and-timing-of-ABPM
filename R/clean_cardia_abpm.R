@@ -7,18 +7,7 @@
 clean_cardia_abpm <- function() {
 
   # This cannot be run unless you have access to the shared drive
-  # also, you must set the shared drive to Y or change line 12.
-  abpm_file_path <- file.path(
-    "Y:",
-    "REGARDS",
-    "CARDIA",
-    "Data",
-    "Population",
-    "ABPM Ancillary Study Freeze",
-    "03-19-2019",
-    "data",
-    "derived"
-  )
+  # also, you must set the shared drive to Y or change line 15.
   
   cardia_abpm <- 
     read_sas(
