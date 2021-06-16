@@ -141,7 +141,7 @@ Participant characteristics were summarized for the overall population and strat
 
 <br>
 
-_Evaluation of 74 blood pressure sampling variations_: We computed the chance-corrected agreement (i.e., Kappa statistic) for the presence of nocturnal hypertension between each BP sampling variation and the full night of ABPM. The mean absolute difference in mean SBP and DBP during sleep between each BP sampling variation and full night of ABPM was also computed. The 74 BP sampling variations were grouped into 12 categories based on the number of measurements, sampling strategy (i.e., consecutive or distributed) and time structure (i.e., time since midnight or time since falling asleep; Table S2). Within each category, we defined the best variation as the one that obtained the highest Kappa statistic. We applied bootstrap resampling to estimate differences in Kappa statistics between the best sampling variation from each category and the Kappa statistics obtained by sampling BP at 2, 3, and 4 hours after falling asleep or midnight.  Kappa statistics using BP sampled at 2, 3, and 4 hours after falling asleep or midnight was selected for comparison as these two variations has been used in previous studies and are applied by some HBPM devices [@stergiou2012assessment; @ishikawa2012nighttime; @kario2015sleep; @ishikawa2014assessment; @fujiwara2018comparative]. We also conducted pairwise comparisons of Kappa statistics among the 12 best BP sampling variations of their category. Bootstrap resampling was applied using bias correction and acceleration [@efron_better_1987]. 
+_Evaluation of 74 blood pressure sampling variations_: `r ftext("We considered mean BP from a full night of ABPM to be the gold standard for evaluating BP sampling variations.", prop = fp_red` We computed the chance-corrected agreement (i.e., Kappa statistic) for the presence of nocturnal hypertension between each BP sampling variation and the full night of ABPM. The mean absolute difference in mean SBP and DBP during sleep between each BP sampling variation and full night of ABPM was also computed. The 74 BP sampling variations were grouped into 12 categories based on the number of measurements, sampling strategy (i.e., consecutive or distributed) and time structure (i.e., time since midnight or time since falling asleep; Table S2). Within each category, we defined the best variation as the one that obtained the highest Kappa statistic. We applied bootstrap resampling to estimate differences in Kappa statistics between the best sampling variation from each category and the Kappa statistics obtained by sampling BP at 2, 3, and 4 hours after falling asleep or midnight.  Kappa statistics using BP sampled at 2, 3, and 4 hours after falling asleep or midnight was selected for comparison as these two variations has been used in previous studies and are applied by some HBPM devices [@stergiou2012assessment; @ishikawa2012nighttime; @kario2015sleep; @ishikawa2014assessment; @fujiwara2018comparative]. We also conducted pairwise comparisons of Kappa statistics among the 12 best BP sampling variations of their category. Bootstrap resampling was applied using bias correction and acceleration [@efron_better_1987]. 
 
 <br>
 
@@ -167,7 +167,7 @@ Analyses were conducted using `r R_string` and several additional R packages [@r
 
 # RESULTS
 
-Among `r inline$exclusions$exc_4_all_bps$Overall` participants included in the current analysis, the mean (standard deviation; SD) age was `r inline$characteristics$age$Overall` years, `r inline$characteristics$sex$Overall`% were male and `r inline$characteristics$race$Overall`% were black. Among JHS and CARDIA participants, the mean (SD) asleep SBP was `r inline$characteristics$slp_sbp_full$JHS` mm Hg and `r inline$characteristics$slp_sbp_full$CARDIA` mm Hg, respectively (Table 1; p `r inline$characteristics$slp_sbp_full$p_value`), and the mean (SD) asleep DBP was `r inline$characteristics$slp_dbp_full$JHS` mm Hg and `r inline$characteristics$slp_dbp_full$CARDIA` mm Hg, respectively (p = `r inline$characteristics$slp_dbp_full$p_value`). There was no evidence of a difference in the prevalence of LVH (p = `r inline$characteristics$lvh$p_value`) or albuminuria (p = `r inline$characteristics$albuminuria$p_value`) between JHS and CARDIA participants. `r ftext(text = "Most BP sampling variations underestimated the mean SBP and DBP according to a full night of ABPM by 1 to 2 mm Hg (Table S3). Descriptive visualizations of SBP and DBP during sleep suggest that this underestimation is attributable to fewer BP values sampled during the later stages of sleep (Figures S1 and S2). Put another way, after 5am or after 5 hours of sleep, BP tends to be higher than from 1am to 5am or during the first 1 to 5 hours of sleep, respectively.", prop = fp_red)` 
+Among `r inline$exclusions$exc_4_all_bps$Overall` participants included in the current analysis, the mean (standard deviation; SD) age was `r inline$characteristics$age$Overall` years, `r inline$characteristics$sex$Overall`% were male and `r inline$characteristics$race$Overall`% were black. Among JHS and CARDIA participants, the mean (SD) asleep SBP was `r inline$characteristics$slp_sbp_full$JHS` mm Hg and `r inline$characteristics$slp_sbp_full$CARDIA` mm Hg, respectively (Table 1; p `r inline$characteristics$slp_sbp_full$p_value`), and the mean (SD) asleep DBP was `r inline$characteristics$slp_dbp_full$JHS` mm Hg and `r inline$characteristics$slp_dbp_full$CARDIA` mm Hg, respectively (p = `r inline$characteristics$slp_dbp_full$p_value`). There was no evidence of a difference in the prevalence of LVH (p = `r inline$characteristics$lvh$p_value`) or albuminuria (p = `r inline$characteristics$albuminuria$p_value`) between JHS and CARDIA participants. `r ftext(text = "Most BP sampling variations underestimated the mean SBP and DBP according to a full night of ABPM by 1 to 2 mm Hg (Table S3). Descriptive visualizations of SBP and DBP during sleep suggest that this underestimation is attributable to fewer BP values sampled during the later stages of sleep (Figures S1 and S2).", prop = fp_red)` 
 
 <br>
 
@@ -203,9 +203,7 @@ The correlations between the JHS and CARDIA cohort rankings of BP sampling varia
 
 # DISCUSSION
 
-In the current study, the highest Kappa statistic assessing agreement with nocturnal hypertension based on a full ABPM assessment`r ftext(text = ", and lowest mean absolute difference for estimating mean SBP during sleep,", prop = fp_red)` resulted from sampling BP at 1, 2, 4, and 5 hours after falling asleep. The prevalence ratios for LVH and albuminuria based on sampling BP at these times were slightly higher than prevalence ratios based on the full night of ABPM. There was no evidence that the ability of sleep BP based on this sampling variation to discriminate (i.e., C-statistic) those with versus without LVH or albuminuria was different than sleep BP based on a full night of ABPM. `r ftext(text = "The low mean absolute differences of roughly 3.1 mm Hg and 2.7 mm Hg for SBP and DBP, respectively, when sampling BP at 1, 2, 4, and 5 hours after falling asleep suggests that this approach may be a suitable method to approximate mean BP according to a full night of ABPM.", prop = fp_red)` The high correlation of Kappa statistics and mean absolute difference rankings for the 74 BP sampling variations in CARDIA and the JHS indicated that results were consistent across the two cohorts, suggesting that findings from the current study were not overly influenced by a single cohort.
-
-
+In the current study, the highest Kappa statistic assessing agreement with nocturnal hypertension based on a full ABPM assessment`r ftext(text = ", and lowest mean absolute difference for estimating mean SBP during sleep,", prop = fp_red)` resulted from sampling BP at 1, 2, 4, and 5 hours after falling asleep. The prevalence ratios for LVH and albuminuria based on sampling BP at these times were slightly higher than prevalence ratios based on the full night of ABPM. There was no evidence that the ability of sleep BP based on this sampling variation to discriminate (i.e., C-statistic) those with versus without LVH or albuminuria was different than sleep BP based on a full night of ABPM. `r ftext(text = "The low mean absolute differences of 3.1 mm Hg and 2.7 mm Hg for SBP and DBP, respectively, when sampling BP at 1, 2, 4, and 5 hours after falling asleep suggests that this approach may be a suitable method to approximate mean BP according to a full night of ABPM.", prop = fp_red)` The high correlation of Kappa statistics and mean absolute difference rankings for the 74 BP sampling variations in CARDIA and the JHS indicated that results were consistent across the two cohorts, suggesting that findings from the current study were not overly influenced by a single cohort.
 
 <br>
 
@@ -217,11 +215,15 @@ Sleep disturbance is a known side effect of ABPM for some individuals [@van2005s
 
 <br>
 
-In the Japan Morning Surge Home Blood Pressure (J-HOP) study, mean BP from a self-measured HBPM device programmed to measure BP at 2am, 3am, and 4am was associated with LVMI and ACR, independent of clinic BP and home BP during the morning and evening [@kario2015sleep]. The current study replicates these results by showing that BP measured 2 to 4 times during sleep is associated with LVH and albuminuria in other cohorts. `r ftext(text = "Another analysis of the J-HOP data found that the average of BP readings assessed at 2am, 3am, and 4am over an average of 8.89 nights, using the same HBPM device, was associated with incident CVD events, but found no evidence of association between mean BP from a single night of ABPM and CVD", prop = fp_red)` [@mokwatsi2020direct]. `r ftext(text = "The current study found a mean absolute difference of roughly 4 mm Hg in SBP between a full night of ABPM and measuring BP at 2am, 3am, and 4am. Future studies should identify whether the additional prognostic value of HBPM versus ABPM for incident CVD risk persists when both techniques are repeated over multiple nights.", prop = fp_red)`
+In the Japan Morning Surge Home Blood Pressure (J-HOP) study, mean BP from a self-measured HBPM device programmed to measure BP at 2am, 3am, and 4am was associated with LVMI and ACR, independent of clinic BP and home BP during the morning and evening [@kario2015sleep]. The current study confirms these results by showing that BP measured 2 to 4 times using ABPM during sleep is associated with LVH and albuminuria in other cohorts. `r ftext(text = "Another analysis of the J-HOP data found that the average of BP readings assessed at 2am, 3am, and 4am over an average of 8.89 nights, using the same HBPM device, was associated with incident CVD events, but found no evidence of association between mean BP from a single night of ABPM and CVD", prop = fp_red)` [@mokwatsi2020direct]. `r ftext(text = "The current study found a mean absolute difference of roughly 4 mm Hg in SBP between a full night of ABPM and measuring BP at 2am, 3am, and 4am. Future studies should identify whether the additional prognostic value of HBPM versus ABPM for incident CVD risk persists when both techniques are repeated over multiple nights.", prop = fp_red)`
 
 <br>
 
 `r ftext(text = "The current study assessed BP sampling variations that measured BP at specific times relative to midnight and at specific times relative to the onset of sleep. Although both approaches are valid, the latter may be more likely to adequately measure BP during sleep in samples where participants go to sleep at a broad range of times. Study participants may also prefer the latter definition as it does not require them to be asleep at specific times. Future studies should investigate the reliability of and preference for HBPM devices that are programmed to measure BP at times relative to midnight versus relative to the onset of sleep.", prop = fp_red)`
+
+<br>
+
+`r ftext(text = "Visualizations of SBP and DBP during sleep suggest that that BP measured 2, 3, and 4 hours or 1, 2, 4 and 5 hours after falling asleep may be important for diagnosing nocturnal hypertension because these sampling times tend to coincide with the period of sleep when BP is dipping, rising, or at its minimum point during sleep. Sampling BP at these sampling times may yield estimates that are closest to that of full ABPM because they average over both the diurnal pattern and diurnal fluctuations in BP during sleep, i.e., they capture the U-shaped BP curve that usually occurs during sleep. Future studies should investigate the night-to-night variability of nocturnal hypertension status according to average BP across these sampling times and the association between average BP across these sampling times with outcomes that are associated with nocturnal hypertension, such as cardiovascular disease and all-cause mortality.", prop = fp_red)`
 
 <br>
 
@@ -467,7 +469,7 @@ par(mar = opar$mar)
 \newpage
 <!-- FIGURE S1: 24-hour means, SBP -->
 
-Figure S1: Estimated mean systolic blood pressure over time since falling asleep (left column) and time since midnight (right column) for participants in the CARDIA (top row) and JHS cohorts (bottom row).
+Figure S1: Estimated mean systolic blood pressure since falling asleep (left column) and time since midnight (right column) for participants in the CARDIA (top row) and JHS cohorts (bottom row).
 `r fp_par(line_spacing = 1)`
 
 ```{r, fig.width=6.5, fig.height = 5, dpi=300}
@@ -475,9 +477,9 @@ drake::loadd(fig_mean_abpm)
 fig_mean_abpm$sbp
 ```
 
-Blood pressure was estimated using linear regression with a natural cubic spline to capture nonlinear patterns in blood pressure over time. 
+Black lines show predicted blood pressure from a linear regression model with a natural cubic spline to capture nonlinear patterns in blood pressure over time.
 `r fp_par(line_spacing = 1)`
-Shaded ribbons around the black lines show 95% confidence limits for the blood pressure estimates.
+Shaded area around the black lines show 95% confidence limits for the blood pressure estimates.
 `r fp_par(line_spacing = 1)`
 The grey dashed line shows the mean systolic blood pressure during sleep for participants in the Coronary Artery Risk Development in Young Adults study (top row) and the Jackson Heart Study (bottom row)
 `r fp_par(line_spacing = 1)`
@@ -485,7 +487,7 @@ The grey dashed line shows the mean systolic blood pressure during sleep for par
 \newpage
 <!-- FIGURE S2: 24-hour means, SBP -->
 
-Figure S2: Estimated mean diastolic blood pressure over time since falling asleep (left column) and time since midnight (right column) for participants in the CARDIA (top row) and JHS cohorts (bottom row).
+Figure S2: Estimated mean diastolic blood pressure since falling asleep (left column) and time since midnight (right column) for participants in the CARDIA (top row) and JHS cohorts (bottom row).
 `r fp_par(line_spacing = 1)`
 
 ```{r, fig.width=6.5, fig.height = 5, dpi=300}
