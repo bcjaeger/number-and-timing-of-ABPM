@@ -225,7 +225,7 @@ In the Japan Morning Surge Home Blood Pressure (J-HOP) study, mean BP from a sel
 
 <br>
 
-`r ftext(text = "Visualizations of SBP and DBP during sleep suggest that BP measured 2, 3, and 4 hours or 1, 2, 4 and 5 hours after falling asleep may be important for diagnosing nocturnal hypertension because these sampling times tend to coincide with the period of sleep when BP is dipping, rising, or at its minimum point during sleep. Sampling BP at these times may yield mean BP values that are closest to that of full ABPM because they average over both the diurnal pattern and diurnal fluctuations in BP during sleep, i.e., they capture the U-shaped BP curve that usually occurs during sleep. Future studies should investigate the night-to-night variability of nocturnal hypertension status according to mean BP across these sampling times and the association between mean BP across these sampling times with outcomes that are associated with nocturnal hypertension, such as cardiovascular disease and all-cause mortality.", prop = fp_red)`
+`r ftext(text = "Visualizations of SBP and DBP during sleep from the current study (see Figures S1 and S2) suggest that BP measured 2, 3, and 4 hours or 1, 2, 4 and 5 hours after falling asleep may be important for diagnosing nocturnal hypertension because these sampling times tend to coincide with the period of sleep when BP is dipping, rising, or at its minimum point during sleep. Sampling BP at these times may yield mean BP values that are closest to that of full ABPM because they average over both the diurnal pattern and diurnal fluctuations in BP during sleep, i.e., they capture the U-shaped BP curve that usually occurs during sleep. Future studies should investigate the association between mean BP across these sampling times with outcomes that are associated with nocturnal hypertension, such as cardiovascular disease and all-cause mortality", prop = fp_red)`.[@kario_nocturnal_2012; @yano2019association]
 
 <br>
 
@@ -481,11 +481,13 @@ drake::loadd(fig_mean_abpm)
 fig_mean_abpm$sbp
 ```
 
-Black lines show predicted blood pressure from a linear regression model with a natural cubic spline to capture nonlinear patterns in blood pressure over time.
+Black lines in the figure show estimated systolic blood pressure according to a natural cubic spline. 
 `r fp_par(line_spacing = 1)`
-Shaded area around the black lines show 95% confidence limits for the blood pressure estimates.
+
+The shaded area around black lines shows 95% confidence limits for the systolic blood pressure estimates.
 `r fp_par(line_spacing = 1)`
-The grey dashed line shows the mean systolic blood pressure during sleep for participants in the Coronary Artery Risk Development in Young Adults study (top row) and the Jackson Heart Study (bottom row)
+
+The grey dashed line shows the mean systolic blood pressure during sleep according to a full night of ambulatory blood pressure monitoring for participants in the Coronary Artery Risk Development in Young Adults study (top row) and the Jackson Heart Study (bottom row)
 `r fp_par(line_spacing = 1)`
 
 \newpage
@@ -498,14 +500,14 @@ Figure S2: Estimated mean diastolic blood pressure since falling asleep (left co
 fig_mean_abpm$dbp
 ```
 
-Blood pressure was estimated using linear regression with a natural cubic spline to capture nonlinear patterns in blood pressure over time. 
-`r fp_par(line_spacing = 1)`
-Shaded ribbons around the black lines show 95% confidence limits for the blood pressure estimates.
-`r fp_par(line_spacing = 1)`
-The grey dashed line shows the mean diastolic blood pressure during sleep for participants in the Coronary Artery Risk Development in Young Adults study (top row) and the Jackson Heart Study (bottom row)
+Black lines in the figure show estimated diastolic blood pressure according to a natural cubic spline. 
 `r fp_par(line_spacing = 1)`
 
+The shaded area around black lines shows 95% confidence limits for the diastolic blood pressure estimates.
+`r fp_par(line_spacing = 1)`
 
+The grey dashed line shows the mean diastolic blood pressure during sleep according to a full night of ambulatory blood pressure monitoring for participants in the Coronary Artery Risk Development in Young Adults study (top row) and the Jackson Heart Study (bottom row)
+`r fp_par(line_spacing = 1)`
 
 \newpage
 <!-- FIGURE S3: pairwise comparisons, tss -->
