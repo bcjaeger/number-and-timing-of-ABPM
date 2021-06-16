@@ -75,8 +75,8 @@ make_data_for_fig_mean_abpm <- function(abpm_long, .study){
     map_dfr(
       ~ {
         
-        m_sbp <- lm(sbp ~ bs(time), data = .x)
-        m_dbp <- lm(dbp ~ bs(time), data = .x)
+        m_sbp <- lm(sbp ~ ns(time, df = 2), data = .x)
+        m_dbp <- lm(dbp ~ ns(time, df = 2), data = .x)
         d <- tibble(time = seq(0.2, 6.8, length.out = 1000))
         
         prd_sbp <- predict(m_sbp, newdata = d, se.fit = TRUE)
